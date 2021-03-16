@@ -1,7 +1,10 @@
 import gdal
-import Coordinates
-from Keywords import Elements, Properties, Channel, PixelPosition
+from numba import njit, prange
+import numpy as np
 from progress.bar import IncrementalBar
+
+
+from Keywords import Elements, Properties, Channel, PixelPosition
 
 ''' INFO
 E - параметр сдвига (x координата центра левого верхнего пикселя)
@@ -20,8 +23,7 @@ y = Dx + By + F
 def get_geotiff_coord(raster, x_pixel, y_pixel):
     world_coord_x = raster.A * x_pixel + raster.C * y_pixel + raster.E
     world_coord_y = raster.D * x_pixel + raster.B * y_pixel + raster.F
-    world_coordinate = Coordinates.WorldCoordinate(world_coord_x, world_coord_y)
-    return world_coordinate
+    return world_coord_x, world_coord_y
 
 
 def print_percent(prev_percent, i, data_count):
@@ -30,6 +32,22 @@ def print_percent(prev_percent, i, data_count):
     if prev_percent != percent:
         print(percent, '%')
     return percent
+
+
+@njit(fastmath=True, cache=True, parallel=True)
+def check_match_parallel(x_points, y_points, max_x, max_y, E, A, F, B, C, D):
+    count_matched = 0
+    count = x_points.shape[0]
+    # TODO вывести уравнение для C != 0 или D != 0
+    if C != 0 or D != 0:
+        return 0, count
+    for i in prange(count):
+        x = round((x_points[i] - E) / A)
+        y = round((y_points[i] - F) / B)
+        if (0 <= x < max_x) and (0 <= y < max_y):
+            count_matched += 1
+    count_mismatched = count - count_matched
+    return count_matched, count_mismatched
 
 
 class Raster:
@@ -47,10 +65,8 @@ class Raster:
         max_y = self.raster.RasterYSize
 
         if self.C == 0 and self.D == 0:
-            x = (cloud_point_x - self.E) / self.A
-            x = round(x)
-            y = (cloud_point_y - self.F) / self.B
-            y = round(y)
+            x = round((cloud_point_x - self.E) / self.A)
+            y = round((cloud_point_y - self.F) / self.B)
         if (0 <= x < max_x) and (0 <= y < max_y):
             return x, y
         return PixelPosition.NOT_MATCHED.value, PixelPosition.NOT_MATCHED.value
@@ -88,7 +104,6 @@ class Raster:
             # INFO координаты в массиве почему-то поменяны местами: raster_array[y][x]!!!
             if x != PixelPosition.NOT_MATCHED.value and y != PixelPosition.NOT_MATCHED.value:
                 count_matched += 1
-                # TODO сделать делегат на функцию записи цвета
                 if band_count == 1:
                     self.__write_color_from_one_channel_raster(ply_data, i, x, y)
                 else:
@@ -101,14 +116,13 @@ class Raster:
         count_mismatched = data_count - count_matched
         return count_matched, count_mismatched, ply_data
 
-# START HELP function Проверка совпадения координат из облака точек с координатами растра
-    def check_match(self, ply_data):
+# START HELP function Проверка совпадения координат из облака точек с координатами растра без ускорения numba
+    def check_match_slow(self, ply_data):
         i = 0
         count_matched = 0
         data_count = ply_data[Elements.VERTEX.value].count
         # bar = IncrementalBar('Countdown', max=data_count)
         _prev_percent = -1
-
         while i < data_count:
             cloud_point_x = ply_data[Elements.VERTEX.value].data[Properties.X.value][i]
             cloud_point_y = ply_data[Elements.VERTEX.value].data[Properties.Y.value][i]
@@ -119,10 +133,27 @@ class Raster:
             _prev_percent = print_percent(_prev_percent, i, data_count)
             i += 1
         # bar.finish()
-        print('Всего точек:', data_count)
+        # print('Всего точек:', data_count)
         count_mismatched = data_count - count_matched
         return count_matched, count_mismatched
 # End
+
+#   Проверка совпадения координат из облака точек с координатами растра с использованием numba
+    def check_match(self, ply_data):
+        # numba работает с numpy с массивом не работает, а кортеж только 100 элементов
+        x_arr = np.array(ply_data[Elements.VERTEX.value].data[Properties.X.value])
+        y_arr = np.array(ply_data[Elements.VERTEX.value].data[Properties.Y.value])
+
+        max_x = self.raster.RasterXSize
+        max_y = self.raster.RasterYSize
+        E = self.E
+        A = self.A
+        F = self.F
+        B = self.B
+        C = self.C
+        D = self.D
+        count_matched, count_mismatched = check_match_parallel(x_arr, y_arr, max_x, max_y, E, A, F, B, C, D)
+        return count_matched, count_mismatched
 
 
 ''' HELPFUL INFO
