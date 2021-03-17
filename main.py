@@ -2,8 +2,7 @@ import os
 
 import PLY
 import TIFF
-from Keywords import Elements, Properties, PixelPosition
-
+from Keywords import Method
 
 ''' РАСТР '''
 
@@ -16,7 +15,7 @@ geotiff_file = TIFF.Raster(path=geotiff_full_path)
 print('Готово!')
 
 
-# ''' ОБЛАКО ТОЧЕК '''
+''' ОБЛАКО ТОЧЕК '''
 
 ply_file_path = r'D:\Python projects\ReplaceColorFromRasterToPointOfCloud\Files\Point of cloud'
 in_ply_file_name = r'3_Series_blok_Binary.ply'
@@ -30,25 +29,25 @@ print('Готово!')
 
 '''ПРОВЕРКА СОВПАДЕНИЙ ИЛИ ПЕРЕНОС ЦВЕТА'''
 
-print('Проверяю наличие совпадающих точек ...')
+# если нужно просто проверить, без переноса, то
+# print('Проверяю наличие совпадающих точек ...')
+# count_matched, count_mismatched = geotiff_file.check_match(ply_data, Method.FAST.value)
+# print('Найдено точек: ', count_matched)
+# print('Не удалось сопоставить: ', count_mismatched)
 
-count_matched, count_mismatched = geotiff_file.check_match(ply_data)
-print('Найдено точек: ', count_matched)
-print('Не удалось сопоставить: ', count_mismatched)
+print('Переношу цвет из растра в облако точек ...')
+count_replaced, count_mismatched = geotiff_file.replace_color_to(ply_data, Method.FAST.value)
+print('Перенесено точек: ', count_replaced)
+print('Не удалось сопоставить точек: ', count_mismatched)
 
-# print('Переношу цвет из растра в облако точек ...')
-# count_replaced, count_mismatched, ply_data = geotiff_file.replace_color_to(ply_data)
-# print('Перенесено точек: ', count_replaced)
-# print('Не удалось сопоставить точек: ', count_mismatched)
 
 '''ЭКСПОРТ ОБЛАКА ТОЧЕК'''
 
 # out_ply_file_path = os.path.join(ply_file_path, 'Exported')
-# if not os.path.exists(out_ply_file_path):
-#     os.mkdir(out_ply_file_path)
-# out_full_ply_file_path = os.path.join(out_ply_file_path, out_ply_file_name)
-# print('Сохраняю файл ', out_full_ply_file_path)
-# PLY.save_ply(ply_data, binary=True, name=out_full_ply_file_path)
+# print('Сохраняю файл в папку: ', out_ply_file_path)
+# PLY.save_ply(ply_data, binary=True, path=out_ply_file_path, name=out_ply_file_name)
 # print('Готово!')
-# PLY.convert_to_ascii(in_file_path, in_file_name)
+
+
+# PLY.convert_to_ascii(ply_file_path, in_ply_file_name)
 

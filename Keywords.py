@@ -1,12 +1,12 @@
 from enum import Enum
 
 
-class Elements (Enum):
+class Element (Enum):
     VERTEX = 'vertex'
     FACE = 'face'
 
 
-class Properties (Enum):
+class Property (Enum):
     X = 'x'
     Y = 'y'
     Z = 'z'
@@ -24,3 +24,8 @@ class Channel (Enum):
 
 class PixelPosition (Enum):
     NOT_MATCHED = -1
+
+
+class Method (Enum):
+    FAST = 'fast'
+    SLOW = 'slow'
