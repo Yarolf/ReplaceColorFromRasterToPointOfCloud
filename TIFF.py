@@ -66,7 +66,7 @@ class Raster:
     def __replace_color_slow(self, ply_data):
         """
         Перемещает цвет пикселя из растра в сопоставленную по координатам точку из облака точек без ускорения numba \n
-        Для более быстрого переноса использовать "replace_color_parallel"
+        Для более быстрого переноса использовать "replace_color_from_one_channel_parallel"
         """
         i = 0
         count_matched = 0
@@ -99,15 +99,13 @@ class Raster:
         Перемещает цвет пикселя из растра в сопоставленную по координатам точку из облака точек с использованием numba\n
         При возникновении ошибок использовать "replace_color_slow"
         """
+
+        # numba не работает с классами, поэтому приходится разбивать всё по переменным и numpy массивам
         x_ply_points = np.array(ply_data[Element.VERTEX.value].data[Property.X.value])
         y_ply_points = np.array(ply_data[Element.VERTEX.value].data[Property.Y.value])
         ply_red_channels = np.array(ply_data[Element.VERTEX.value].data[Property.RED.value])
         ply_green_channels = np.array(ply_data[Element.VERTEX.value].data[Property.GREEN.value])
         ply_blue_channels = np.array(ply_data[Element.VERTEX.value].data[Property.BLUE.value])
-        if self.raster.RasterCount == 1:
-            raster_red_np_arr = np.array(self.raster_array)
-        else:
-            raster_red_np_arr = np.array(self.raster_array[Channel.RED.value])
         max_x = self.raster.RasterXSize
         max_y = self.raster.RasterYSize
         E = self.E
@@ -116,18 +114,40 @@ class Raster:
         B = self.B
         C = self.C
         D = self.D
-        # TODO реализовать для 3-х канального изображения
-        print(ply_data[Element.VERTEX.value].data[Property.RED.value][1000])
-        count_replaced, count_mismatched = NumbaSpeedBoost.replace_color_parallel(
-            x_ply_points, y_ply_points,
-            ply_red_channels, ply_green_channels, ply_blue_channels,
-            max_x, max_y,
-            E, A, F, B, C, D,
-            raster_red_np_arr)
+        band_count = self.raster.RasterCount
+        # prev_color = ply_data[Element.VERTEX.value].data[Property.RED.value][1000]
+        # print("Проверка переноса цвета", prev_color)
+        if band_count == 1:
+            raster_grey_np_arr = np.array(self.raster_array)
+            count_replaced, count_mismatched = \
+                NumbaSpeedBoost.replace_color_from_one_channel_parallel\
+                (
+                    x_ply_points, y_ply_points,
+                    ply_red_channels, ply_green_channels, ply_blue_channels,
+                    max_x, max_y,
+                    E, A, F, B, C, D,
+                    raster_grey_np_arr
+                )
+        else:
+            raster_red_np_arr = np.array(self.raster_array[Channel.RED.value])
+            raster_green_np_arr = np.array(self.raster_array[Channel.GREEN.value])
+            raster_blue_np_arr = np.array(self.raster_array[Channel.BLUE.value])
+            count_replaced, count_mismatched = \
+                NumbaSpeedBoost.replace_color_from_three_channel_parallel\
+                (
+                    x_ply_points, y_ply_points,
+                    ply_red_channels, ply_green_channels, ply_blue_channels,
+                    max_x, max_y,
+                    E, A, F, B, C, D,
+                    raster_red_np_arr, raster_blue_np_arr, raster_green_np_arr
+                )
+
         ply_data[Element.VERTEX.value].data[Property.RED.value] = ply_red_channels
         ply_data[Element.VERTEX.value].data[Property.GREEN.value] = ply_green_channels
         ply_data[Element.VERTEX.value].data[Property.BLUE.value] = ply_blue_channels
-        print(ply_data[Element.VERTEX.value].data[Property.RED.value][1000])
+        # cur_color = ply_data[Element.VERTEX.value].data[Property.RED.value][1000]
+        # print("Проверка переноса цвета", cur_color)
+        # print("Цвет изменился?", prev_color != cur_color)
         return count_replaced, count_mismatched
 
     def replace_color_to(self, ply_data, method):
