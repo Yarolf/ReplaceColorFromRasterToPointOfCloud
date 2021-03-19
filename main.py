@@ -17,8 +17,8 @@ print('Готово!')
 
 ''' ОБЛАКО ТОЧЕК '''
 
-ply_file_path = r'D:\Python projects\ReplaceColorFromRasterToPointOfCloud\Files\Point of cloud'
-in_ply_file_name = r'3_Series_blok_Binary.ply'
+ply_file_path = r'D:\RZHD Project\MetashapeFiles\Part\3_Series_blok\obj'
+in_ply_file_name = r'object_gaus_cruger 18 + normals.ply'
 out_ply_file_name = 'Replaced Colors ' + in_ply_file_name
 
 print('Читаю облако точек ...')
@@ -43,10 +43,10 @@ print('Не удалось сопоставить точек: ', count_mismatche
 
 '''ЭКСПОРТ ОБЛАКА ТОЧЕК'''
 
-# out_ply_file_path = os.path.join(ply_file_path, 'Exported')
-# print('Сохраняю файл в папку: ', out_ply_file_path)
-# PLY.save_ply(ply_data, binary=True, path=out_ply_file_path, name=out_ply_file_name)
-# print('Готово!')
+out_ply_file_path = os.path.join(ply_file_path, 'Exported')
+print('Сохраняю файл в папку: ', out_ply_file_path)
+PLY.save_ply(ply_data, binary=True, path=out_ply_file_path, name=out_ply_file_name)
+print('Готово!')
 
 
 # PLY.convert_to_ascii(ply_file_path, in_ply_file_name)

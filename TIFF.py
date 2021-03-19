@@ -45,8 +45,8 @@ class Raster:
         # INFO координаты в массиве поменяны местами: raster_array[y][x]!!!
         # (не знаю почему, но так сделали в библиотеке)
         ply_data[Element.VERTEX.value].data[Property.RED.value][i] = self.raster_array[y][x]
-        ply_data[Element.VERTEX.value].data[Property.GREEN.value][i] = 0
-        ply_data[Element.VERTEX.value].data[Property.BLUE.value][i] = 0
+        ply_data[Element.VERTEX.value].data[Property.GREEN.value][i] = self.raster_array[y][x]
+        ply_data[Element.VERTEX.value].data[Property.BLUE.value][i] = self.raster_array[y][x]
 
     def __write_color_from_three_channel_raster(self, ply_data, i, x, y):
         # INFO координаты в массиве поменяны местами: raster_array[y][x]!!!

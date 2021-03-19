@@ -38,8 +38,8 @@ def replace_color_from_one_channel_parallel(
             # INFO координаты в массиве поменяны местами: raster_array[y][x]!!!
             # (не знаю почему, но так сделали в библиотеке)
             ply_red_channels[i] = raster_grey_np_arr[y][x]
-            ply_green_channels[i] = 0
-            ply_blue_channels[i] = 0
+            ply_green_channels[i] = raster_grey_np_arr[y][x]
+            ply_blue_channels[i] = raster_grey_np_arr[y][x]
             count_replaced += 1
     count_mismatched = count - count_replaced
     return count_replaced, count_mismatched
