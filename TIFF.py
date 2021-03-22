@@ -1,7 +1,6 @@
 import gdal
 import numpy as np
 import NumbaSpeedBoost
-# from progress.bar import IncrementalBar
 from Progress import Progress
 
 from Keywords import Element, Property, Channel, PixelPosition, Method
@@ -15,8 +14,8 @@ D -  параметр поворота (обычно равен нулю)
 B - масштаб растра по оси Y; отрицательный размер пиксела по оси Y
 
 Получение координат каждого пикселя
-x = Ax + Cy + E
-y = Dx + By + F
+X = Ax + Cy + E
+Y = Dx + By + F
 '''
 
 
@@ -34,11 +33,11 @@ class Raster:
         max_x = self.raster.RasterXSize
         max_y = self.raster.RasterYSize
 
-        if self.C == 0 and self.D == 0:
-            x = round((cloud_point_x - self.E) / self.A)
-            y = round((cloud_point_y - self.F) / self.B)
-            if (0 <= x < max_x) and (0 <= y < max_y):
-                return x, y
+        y = self.A * (cloud_point_y - self.F) - self.B * self.B * self.D * (cloud_point_x + self.E)
+        y = round(y / (self.B * (self.A + self.B * self.D * self.C)))
+        x = round((cloud_point_x - self.C * y - self.E) / self.A)
+        if (0 <= x < max_x) and (0 <= y < max_y):
+            return x, y
         return PixelPosition.NOT_MATCHED.value, PixelPosition.NOT_MATCHED.value
 
     def __write_color_from_one_channel_raster(self, ply_data, i, x, y):
@@ -71,7 +70,6 @@ class Raster:
         i = 0
         count_matched = 0
         data_count = ply_data[Element.VERTEX.value].count
-        # bar = IncrementalBar('Countdown', max=data_count)
         progress = Progress(data_count)
         band_count = self.raster.RasterCount
         if band_count == 1:
@@ -85,10 +83,8 @@ class Raster:
             if x != PixelPosition.NOT_MATCHED.value and y != PixelPosition.NOT_MATCHED.value:
                 count_matched += 1
                 write_color(ply_data, i, x, y)
-            # bar.next()
             progress.step()
             i += 1
-        # bar.finish()
         progress.reset()
         print('Всего точек:', data_count)
         count_mismatched = data_count - count_matched
@@ -125,7 +121,7 @@ class Raster:
                     x_ply_points, y_ply_points,
                     ply_red_channels, ply_green_channels, ply_blue_channels,
                     max_x, max_y,
-                    E, A, F, B, C, D,
+                    A, B, C, D, E, F,
                     raster_grey_np_arr
                 )
         else:
@@ -171,7 +167,6 @@ class Raster:
         i = 0
         count_matched = 0
         data_count = ply_data[Element.VERTEX.value].count
-        # bar = IncrementalBar('Countdown', max=data_count)
         progress = Progress(data_count)
         while i < data_count:
             cloud_point_x = ply_data[Element.VERTEX.value].data[Property.X.value][i]
@@ -179,10 +174,8 @@ class Raster:
             x, y = self.__find_appropriate_pixel(cloud_point_x, cloud_point_y)
             if x != PixelPosition.NOT_MATCHED.value and y != PixelPosition.NOT_MATCHED.value:
                 count_matched += 1
-            # bar.next()
             progress.step()
             i += 1
-        # bar.finish()
         progress.reset()
         # print('Всего точек:', data_count)
         count_mismatched = data_count - count_matched
@@ -207,7 +200,7 @@ class Raster:
         B = self.B
         C = self.C
         D = self.D
-        count_matched, count_mismatched = NumbaSpeedBoost.check_match_parallel(x_arr, y_arr, max_x, max_y, E, A, F, B, C, D)
+        count_matched, count_mismatched = NumbaSpeedBoost.check_match_parallel(x_arr, y_arr, max_x, max_y, A, B, C, D, E, F)
         return count_matched, count_mismatched
 
     def check_match(self, ply_data, method):

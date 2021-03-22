@@ -2,15 +2,13 @@ from numba import njit, prange
 
 
 @njit(fastmath=True, parallel=True)
-def check_match_parallel(x_points, y_points, max_x, max_y, E, A, F, B, C, D):
+def check_match_parallel(cloud_points_x, cloud_points_y, max_x, max_y, A, B, C, D, E, F):
     count_matched = 0
-    count = x_points.shape[0]
-    # TODO вывести уравнение для C != 0 или D != 0
-    if C != 0 or D != 0:
-        return 0, count
+    count = cloud_points_x.shape[0]
     for i in prange(count):
-        x = round((x_points[i] - E) / A)
-        y = round((y_points[i] - F) / B)
+        y = A * (cloud_points_y[i] - F) - B * B * D * (cloud_points_x[i] + E)
+        y = round(y / (B * (A + B * D * C)))
+        x = round((cloud_points_x[i] - C * y - E) / A)
         if (0 <= x < max_x) and (0 <= y < max_y):
             count_matched += 1
     count_mismatched = count - count_matched
@@ -19,21 +17,19 @@ def check_match_parallel(x_points, y_points, max_x, max_y, E, A, F, B, C, D):
 
 @njit(fastmath=True, parallel=True)
 def replace_color_from_one_channel_parallel(
-        x_ply_points, y_ply_points,
+        cloud_points_x, cloud_points_y,
         ply_red_channels, ply_green_channels, ply_blue_channels,
         max_x, max_y,
-        E, A, F, B, C, D,
+        A, B, C, D, E, F,
         raster_grey_np_arr):
 
     count_replaced = 0
-    count = x_ply_points.shape[0]
-    # TODO вывести уравнение для C != 0 или D != 0
-    if C != 0 or D != 0:
-        return 0, count
+    count = cloud_points_y.shape[0]
 
     for i in prange(count):
-        x = round((x_ply_points[i] - E) / A)
-        y = round((y_ply_points[i] - F) / B)
+        y = A * (cloud_points_y[i] - F) - B * B * D * (cloud_points_x[i] + E)
+        y = round(y / (B * (A + B * D * C)))
+        x = round((cloud_points_x[i] - C * y - E) / A)
         if (0 <= x < max_x) and (0 <= y < max_y):
             # INFO координаты в массиве поменяны местами: raster_array[y][x]!!!
             # (не знаю почему, но так сделали в библиотеке)
@@ -47,21 +43,19 @@ def replace_color_from_one_channel_parallel(
 
 @njit(fastmath=True, parallel=True)
 def replace_color_from_three_channel_parallel(
-        x_ply_points, y_ply_points,
+        cloud_points_x, cloud_points_y,
         ply_red_channels, ply_green_channels, ply_blue_channels,
         max_x, max_y,
-        E, A, F, B, C, D,
+        A, B, C, D, E, F,
         raster_red_np_arr, raster_green_np_arr, raster_blue_np_arr):
 
     count_replaced = 0
-    count = x_ply_points.shape[0]
-    # TODO вывести уравнение для C != 0 или D != 0
-    if C != 0 or D != 0:
-        return 0, count
+    count = cloud_points_x.shape[0]
 
     for i in prange(count):
-        x = round((x_ply_points[i] - E) / A)
-        y = round((y_ply_points[i] - F) / B)
+        y = A * (cloud_points_y[i] - F) - B * B * D * (cloud_points_x[i] + E)
+        y = round(y / (B * (A + B * D * C)))
+        x = round((cloud_points_x[i] - C * y - E) / A)
         if (0 <= x < max_x) and (0 <= y < max_y):
             # INFO координаты в массиве поменяны местами: raster_array[y][x]!!!
             # (не знаю почему, но так сделали в библиотеке)
