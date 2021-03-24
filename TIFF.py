@@ -112,7 +112,7 @@ class Raster:
         D = self.D
         band_count = self.raster.RasterCount
         # prev_color = ply_data[Element.VERTEX.value].data[Property.RED.value][1000]
-        # print("Проверка переноса цвета", prev_color)
+        # print_time("Проверка переноса цвета", prev_color)
         if band_count == 1:
             raster_grey_np_arr = np.array(self.raster_array)
             count_replaced, count_mismatched = \
@@ -142,8 +142,8 @@ class Raster:
         ply_data[Element.VERTEX.value].data[Property.GREEN.value] = ply_green_channels
         ply_data[Element.VERTEX.value].data[Property.BLUE.value] = ply_blue_channels
         # cur_color = ply_data[Element.VERTEX.value].data[Property.RED.value][1000]
-        # print("Проверка переноса цвета", cur_color)
-        # print("Цвет изменился?", prev_color != cur_color)
+        # print_time("Проверка переноса цвета", cur_color)
+        # print_time("Цвет изменился?", prev_color != cur_color)
         return count_replaced, count_mismatched
 
     def replace_color_to(self, ply_data, method):
@@ -177,7 +177,7 @@ class Raster:
             progress.step()
             i += 1
         progress.reset()
-        # print('Всего точек:', data_count)
+        # print_time('Всего точек:', data_count)
         count_mismatched = data_count - count_matched
         return count_matched, count_mismatched
 
@@ -227,21 +227,21 @@ class Raster:
 ''' HELPFUL INFO
 имя[канал][x][y]
 R правого верхнего пикселя
-print(raster_array[Channel.RED.value][0][x - 1])
+print_time(raster_array[Channel.RED.value][0][x - 1])
 G правого верхнего пикселя
-print(raster_array[Channel.GREEN.value][0][x - 1])
+print_time(raster_array[Channel.GREEN.value][0][x - 1])
 B правого верхнего пикселя
-print(raster_array[Channel.BLUE.value][0][x - 1])
+print_time(raster_array[Channel.BLUE.value][0][x - 1])
 A правого верхнего пикселя
-print(raster_array[Channel.ALPHA.value][0][x - 1])
+print_time(raster_array[Channel.ALPHA.value][0][x - 1])
 
 world_coord = get_geotiff_coord(0, 0)
 X мировые координаты правого верхнего пикселя
-print(world_coord.x)
+print_time(world_coord.x)
 Y мировые координаты правого верхнего пикселя
-print(world_coord.y)
+print_time(world_coord.y)
 
-print(ply_data.elements[Elements.VERTEX.value].data[Properties.RED.value])
+print_time(ply_data.elements[Elements.VERTEX.value].data[Properties.RED.value])
 elements 'vertex' в нём данные по всем столбцам в столбце data['red'] данные о красном столбце
 
 Количество каналов в изображении
