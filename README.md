@@ -11,13 +11,13 @@ gdal - для рабооты с геопривязанным растром .tif
 numpy, numba - для сокращения времени выполнения задач
 
 #Run 
-Для запуска скрипта необходимо запустить файл main.py
+Для запуска скрипта необходимо запустить файл "main.py"
 
 #Instruction 
 Заменить путь к растру и облаку точек в переменных:
-geotiff_file_path, geotiff_file_name
-и ply_file_path, in_ply_file_name
+"geotiff_file_path", "geotiff_file_name"
+и "ply_file_path", "in_ply_file_name"
 По желанию можно изменить имя экспортируемого файла:
-out_ply_file_name
+"out_ply_file_name"
 
 ![image](https://user-images.githubusercontent.com/58412734/112442173-89163480-8d86-11eb-8f7c-de2390174ef3.png)
