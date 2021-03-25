@@ -21,4 +21,5 @@ numpy, numba - для сокращения времени выполнения �
 "out_ply_file_name"
 
 #Screnshot
+
 ![image](https://user-images.githubusercontent.com/58412734/112442173-89163480-8d86-11eb-8f7c-de2390174ef3.png)
