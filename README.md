@@ -10,6 +10,11 @@ plyfile - для работы с ply файлами (3D модель, облак
 gdal - для рабооты с геопривязанным растром .tiff
 numpy, numba - для сокращения времени выполнения задач
 
+#Install
+conda install gdal
+conda install -c conda-forge plyfile
+conda install numba
+
 #Run 
 Для запуска скрипта необходимо запустить файл "main.py"
 
