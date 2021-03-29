@@ -6,6 +6,7 @@ from Keywords import Method
 import time
 import ElapsedTime
 
+
 '''Ввод данных'''
 full_path = ''
 while not os.path.exists(full_path):

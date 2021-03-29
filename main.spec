@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['main.py', 'Keywords.py', 'Progress.py', 'PLY.py', 'NumbaSpeedBoost.py', 'ElapsedTime.py', 'TIFF.py'],
+a = Analysis(['main.py'],
              pathex=['D:\\Python projects\\ReplaceColorFromRasterToPointOfCloud'],
              binaries=[],
              datas=[],
