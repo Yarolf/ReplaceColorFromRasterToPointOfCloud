@@ -1,4 +1,7 @@
-import gdal
+try:
+    from osgeo import gdal
+except ImportError:
+    import gdal
 import numpy as np
 import NumbaSpeedBoost
 from Progress import Progress
@@ -116,27 +119,27 @@ class Raster:
         if band_count == 1:
             raster_grey_np_arr = np.array(self.raster_array)
             count_replaced, count_mismatched = \
-                NumbaSpeedBoost.replace_color_from_one_channel_parallel\
-                (
-                    x_ply_points, y_ply_points,
-                    ply_red_channels, ply_green_channels, ply_blue_channels,
-                    max_x, max_y,
-                    A, B, C, D, E, F,
-                    raster_grey_np_arr
-                )
+                NumbaSpeedBoost.replace_color_from_one_channel_parallel \
+                        (
+                        x_ply_points, y_ply_points,
+                        ply_red_channels, ply_green_channels, ply_blue_channels,
+                        max_x, max_y,
+                        A, B, C, D, E, F,
+                        raster_grey_np_arr
+                    )
         else:
             raster_red_np_arr = np.array(self.raster_array[Channel.RED.value])
             raster_green_np_arr = np.array(self.raster_array[Channel.GREEN.value])
             raster_blue_np_arr = np.array(self.raster_array[Channel.BLUE.value])
             count_replaced, count_mismatched = \
-                NumbaSpeedBoost.replace_color_from_three_channel_parallel\
-                (
-                    x_ply_points, y_ply_points,
-                    ply_red_channels, ply_green_channels, ply_blue_channels,
-                    max_x, max_y,
-                    E, A, F, B, C, D,
-                    raster_red_np_arr, raster_blue_np_arr, raster_green_np_arr
-                )
+                NumbaSpeedBoost.replace_color_from_three_channel_parallel \
+                        (
+                        x_ply_points, y_ply_points,
+                        ply_red_channels, ply_green_channels, ply_blue_channels,
+                        max_x, max_y,
+                        E, A, F, B, C, D,
+                        raster_red_np_arr, raster_blue_np_arr, raster_green_np_arr
+                    )
 
         ply_data[Element.VERTEX.value].data[Property.RED.value] = ply_red_channels
         ply_data[Element.VERTEX.value].data[Property.GREEN.value] = ply_green_channels
@@ -157,7 +160,7 @@ class Raster:
         if method == Method.FAST.value:
             return self.__replace_color_fast(ply_data)
 
-# START HelpFunctions
+    # START HelpFunctions
     def __check_match_slow(self, ply_data):
         """
         Проверка совпадения координат из облака точек с координатами растра без ускорения numba \n
@@ -200,7 +203,8 @@ class Raster:
         B = self.B
         C = self.C
         D = self.D
-        count_matched, count_mismatched = NumbaSpeedBoost.check_match_parallel(x_arr, y_arr, max_x, max_y, A, B, C, D, E, F)
+        count_matched, count_mismatched = NumbaSpeedBoost.check_match_parallel(x_arr, y_arr, max_x, max_y, A, B, C, D,
+                                                                               E, F)
         return count_matched, count_mismatched
 
     def check_match(self, ply_data, method):
@@ -221,6 +225,8 @@ class Raster:
         world_coord_x = self.A * x_pixel + self.C * y_pixel + self.E
         world_coord_y = self.D * x_pixel + self.B * y_pixel + self.F
         return world_coord_x, world_coord_y
+
+
 # End
 
 
