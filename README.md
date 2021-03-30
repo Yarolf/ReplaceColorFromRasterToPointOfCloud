@@ -12,16 +12,18 @@ numpy, numba - для сокращения времени выполнения �
 
 #Install
 conda install gdal
-conda install -c conda-forge plyfile
+OR download file at https://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal and
+pip install (path_to_file)
+
+conda install -c conda-forge plyfile 
+OR pip install plyfile
 conda install numba
 
-#Run 
-Для запуска скрипта необходимо запустить файл "main.py"
+#Run
+Перейти в папку RUN и запустить replaceColor.exe
+ИЛИ
+запустить скрипта необходимо запустить файл "main.py"
 
-#Instruction 
-Заменить путь к растру и облаку точек в переменных:
-"geotiff_file_path", "geotiff_file_name"
-и "ply_file_path", "in_ply_file_name"
 По желанию можно изменить имя экспортируемого файла:
 "out_ply_file_name"
 
