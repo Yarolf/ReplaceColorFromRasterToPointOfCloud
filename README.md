@@ -20,9 +20,9 @@ OR pip install plyfile
 conda install numba
 
 #Run
-перейти в папку RUN и запустить replaceColor.exe
+Перейти в папку RUN и запустить replaceColor.exe
 ИЛИ
-Для запуска скрипта необходимо запустить файл "main.py"
+запустить скрипта необходимо запустить файл "main.py"
 
 По желанию можно изменить имя экспортируемого файла:
 "out_ply_file_name"
